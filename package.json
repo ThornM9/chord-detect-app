@@ -12,6 +12,7 @@
     "@tensorflow/tfjs-node": "^1.5.1",
     "axios": "^0.19.0",
     "core-js": "^3.4.4",
+    "dotenv": "^8.2.0",
     "meyda": "^4.2.0",
     "multer": "^1.4.2",
     "recorderjs": "^1.0.1",
