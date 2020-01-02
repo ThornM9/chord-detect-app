@@ -53,6 +53,7 @@ function getChromaFromAudioData(audioData) {
 
 module.exports = {
     process: async function(filepath) {
+        let predictedChord = ""
         const model = await tf.loadLayersModel('http://127.0.0.1:8080/model/model.json');
         await readFile(filepath).then((buffer) => {
             return WavDecoder.decode(buffer);
@@ -66,9 +67,9 @@ module.exports = {
                 const logits = Array.from(prediction.dataSync());
                 
                 let idx = prediction.argMax(-1).dataSync()[0]
-                let predictedChord = chord_names[idx];
-                console.log(predictedChord);
+                predictedChord = chord_names[idx];                
             })
         });
+        return predictedChord;
     }
 }

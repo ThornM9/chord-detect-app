@@ -15,9 +15,10 @@ app.use(function(req, res, next) {
 
 app.post("/upload_wav", upload.single("wav"), function(req, res) {
     console.log("received wav");
-    processwav.process(req.file.path);
-    res.send({"message": "hello"});
-
+    let predictionPromise = processwav.process(req.file.path);
+    predictionPromise.then(function(result) {
+        res.json({"chord": result});
+    })
 });
 
 app.use("/public", express.static("./public"));

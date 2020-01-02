@@ -5,81 +5,93 @@
       <p class="subtitle">
         <strong>Use machine learning to detect musical chords played in a recording</strong>
       </p>
-    
-      <v-card class="app-container">
+
+      <v-card :style="cardStyle">
         <div class="inner-app-container">
           <h3>Detect</h3>
-        <div id="recording-playback">
-          <audio controls :src="audioUrl"></audio>
-        </div>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              color="primary"
-              @click="startRecording"
-              :disabled="recordButtonDisabled"
-              v-on="on"
-            >
-              <v-icon>mdi-record</v-icon>
-            </v-btn>
-          </template>
-          <span>Record</span>
-        </v-tooltip>
+          <div id="recording-playback">
+            <audio controls :src="audioUrl"></audio>
+          </div>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                @click="startRecording"
+                :disabled="recordButtonDisabled"
+                v-on="on"
+              >
+                <v-icon>mdi-record</v-icon>
+              </v-btn>
+            </template>
+            <span>Record</span>
+          </v-tooltip>
 
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn color="primary" @click="stopRecording" :disabled="stopButtonDisabled" v-on="on">
-              <v-icon>mdi-stop</v-icon>
-            </v-btn>
-          </template>
-          <span>Stop</span>
-        </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                @click="stopRecording"
+                :disabled="stopButtonDisabled"
+                v-on="on"
+              >
+                <v-icon>mdi-stop</v-icon>
+              </v-btn>
+            </template>
+            <span>Stop</span>
+          </v-tooltip>
 
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              color="primary"
-              @click="analyseRecording"
-              :disabled="analyseButtonDisabled"
-              v-on="on"
-            >
-              <v-icon>mdi-chart-line</v-icon>
-            </v-btn>
-          </template>
-          <span>Analyse Recording</span>
-        </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                @click="analyseRecording"
+                :disabled="analyseButtonDisabled"
+                v-on="on"
+              >
+                <v-icon>mdi-chart-line</v-icon>
+              </v-btn>
+            </template>
+            <span>Analyse Recording</span>
+          </v-tooltip>
 
-        <v-dialog v-model="settingsDialog">
-          <template v-slot:activator="{ on }">
-            <v-btn color="primary" v-on="on" text>
-              <v-icon>mdi-settings</v-icon>
-            </v-btn>
-          </template>
-          <v-card>
-            <v-card-title class="headline grey lighten-2" primary-title>Settings</v-card-title>
+          <v-dialog v-model="settingsDialog">
+            <template v-slot:activator="{ on }">
+              <v-btn color="primary" v-on="on" text>
+                <v-icon>mdi-settings</v-icon>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title class="headline grey lighten-2" primary-title>Settings</v-card-title>
 
-            <v-card-text>
-              <div class="center-align-flex-container">
-                <div style="width: 50px;">
-                  <v-text-field label="Delay" v-model="recordDelay" type="number" max="10" min="0" />
-                  <v-text-field
-                    label="Length"
-                    v-model="recordLength"
-                    type="number"
-                    max="5"
-                    min="0"
-                  />
+              <v-card-text>
+                <div class="center-align-flex-container">
+                  <div style="width: 50px;">
+                    <v-text-field
+                      label="Delay"
+                      v-model="recordDelay"
+                      type="number"
+                      max="10"
+                      min="0"
+                    />
+                    <v-text-field
+                      label="Length"
+                      v-model="recordLength"
+                      type="number"
+                      max="5"
+                      min="0"
+                    />
+                  </div>
                 </div>
-              </div>
-            </v-card-text>
-            <v-divider></v-divider>
+              </v-card-text>
+              <v-divider></v-divider>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" @click="settingsDialog = false">Save</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" @click="settingsDialog = false">Save</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <p>Prediction: {{ prediction }}</p>
         </div>
       </v-card>
     </v-content>
@@ -89,18 +101,12 @@
 <style scoped>
 .main-header {
   text-align: center;
-  font-size: 4.5em;
+  font-size: 3.5em;
 }
 
 .subtitle {
   text-align: center;
   font-size: 1.3em;
-}
-
-.app-container {
-  width: 50%;
-  margin-left: 25%;
-  margin-top: 15%
 }
 
 .inner-app-container {
@@ -126,8 +132,6 @@ export default {
   data: () => ({
     recordButtonDisabled: false,
     stopButtonDisabled: true,
-    pauseButtonDisabled: true,
-    pauseButtonText: "Pause",
     gumStream: undefined, // stream from getUserMedia()
     rec: undefined, // Recorder.js object
     input: undefined, //MediaStreamAudioSourceNode we'll be recording
@@ -135,7 +139,8 @@ export default {
     recordingBlob: undefined,
     settingsDialog: false,
     recordDelay: 0, // in seconds
-    recordLength: 5 // in seconds
+    recordLength: 3, // in seconds
+    prediction: ""
   }),
   computed: {
     audioUrl() {
@@ -147,20 +152,27 @@ export default {
     },
     analyseButtonDisabled() {
       return !Boolean(this.recordingBlob);
+    },
+    cardStyle() {
+      //padding-bottom: 0; padding-top: 0; display: flex; overflow: scroll;
+      const {mdAndUp} = this.$vuetify.breakpoint;
+      return {
+        marginLeft: (mdAndUp) ? '25%' : '5%',
+        width: (mdAndUp) ? '50%' : '90%',
+        marginTop: '15%',
+      }
     }
   },
   methods: {
     startRecording() {
       let _this = this;
       setTimeout(function() {
-        console.log("recordButton clicked");
 
         let constraints = { audio: true, video: false };
 
         // disable the record button until we get a success or fail from getUserMedia()
         _this.recordButtonDisabled = true;
         _this.stopButtonDisabled = false;
-        _this.pauseButtonDisabled = false;
 
         navigator.mediaDevices
           .getUserMedia(constraints)
@@ -203,15 +215,10 @@ export default {
       }, this.recordDelay * 1000);
     },
     stopRecording() {
-      console.log("stopButton clicked");
 
       //disable the stop button, enable the record too allow for new recordings
       this.stopButtonDisabled = true;
       this.recordButtonDisabled = false;
-      this.pauseButtonDisabled = true;
-
-      //reset button just in case the recording is stopped while paused
-      this.pauseButtonText = "Pause";
 
       this.rec.stop();
 
@@ -229,6 +236,7 @@ export default {
       let filename = new Date().toISOString();
       formData.append("wav", this.recordingBlob, filename);
       let url = `http://${window.location.hostname}:5000/upload_wav`;
+      let _this = this;
       return axios
         .post(url, formData, {
           headers: {
@@ -236,6 +244,7 @@ export default {
           }
         })
         .then(response => {
+          _this.prediction = response.data.chord;
           return response.data;
         })
         .catch(err => Promise.reject(err.message));
