@@ -235,7 +235,7 @@ export default {
       let formData = new FormData();
       let filename = new Date().toISOString();
       formData.append("wav", this.recordingBlob, filename);
-      let url = `http://${window.location.hostname}:5000/upload_wav`;
+      let url = `https://${window.location.hostname}:5000/upload_wav`;
       let _this = this;
       return axios
         .post(url, formData, {
